@@ -1,0 +1,13 @@
+# OS
+.DS_Store
+Thumbs.db
+
+# Claude runtime files — NOT synced (machine-specific)
+# These stay in ~/.claude but are NOT in this repo
+history.jsonl
+mcp-needs-auth-cache.json
+backups/
+cache/
+file-history/
+plugins/
+.last-cleanup
