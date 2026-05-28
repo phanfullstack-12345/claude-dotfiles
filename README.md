@@ -7,7 +7,7 @@ Personal Claude Code global config — synced across all my machines.
 >
 > *Có gì mới (v2): thêm workflow `/fix` và `/cook` (Scout → Diagnose → Plan → Apply → Verify → Review) lấy cảm hứng từ ClaudeKit, kèm hook `artifact-gate` chặn `git push` / `gh pr create` / deploy khi chưa có đủ bằng chứng (artifacts) và review decision PASS.*
 
----
+***
 
 ## What's included / Thành phần bao gồm
 
@@ -74,7 +74,7 @@ cd ~/my-project
 claude
 ```
 
----
+***
 
 ### `/scout <area>` — Khảo sát code (không sửa gì)
 
@@ -335,7 +335,7 @@ cd ~/claude-dotfiles
 git pull && ./install.sh
 ```
 
----
+***
 
 ## ⌨️ Các lệnh Claude Code hay dùng
 
@@ -349,7 +349,7 @@ git pull && ./install.sh
 | `/diff` | Xem pending file changes |
 | `/doctor` | Kiểm tra sức khoẻ Claude Code |
 
----
+***
 
 ## install.sh flags / Các flag của install.sh
 
