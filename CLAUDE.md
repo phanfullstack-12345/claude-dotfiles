@@ -8753,8 +8753,11 @@ Claude must **never** do the following without explicit confirmation:
 
 Always invoke the relevant skill before responding to development tasks. Do NOT skip skills to save time.
 
-| Task context | Skill to invoke |
+| Task context | Skill / Command to invoke |
 |---|---|
+| Bug report / failing behaviour / "X is broken" | `/fix` — Scout → Diagnose → Plan → Apply → Verify, with 6-question diagnosis + 3-strike stop |
+| New feature / "implement X" / "build Y" | `/cook` — Spec (5 items) → Plan → Build → Verify → Review, with artifact-gate |
+| "Look at X" / "where does Y live" / area survey | `/scout` — read-only reconnaissance |
 | Running or starting the app | `run` |
 | Verifying a fix / confirming a feature works | `verify` |
 | Reviewing code changes or diffs | `code-review` |
@@ -8766,6 +8769,15 @@ Always invoke the relevant skill before responding to development tasks. Do NOT 
 | Any `.pdf` file involved | `pdf` |
 | Code imports `anthropic` / Anthropic SDK | `claude-api` |
 | Configuring hooks, permissions, settings.json | `update-config` |
+
+### Evidence over score
+**Never** approve work based on a self-assigned score ("9/10, ship it"). Approval requires:
+- Acceptance criteria all green (from `/cook` spec) OR reproduction steps fail post-fix then pass post-fix (from `/fix` diagnosis)
+- `.claude-artifacts/verification.json` exists with green commands logged
+- `.claude-artifacts/review-decision.json` decision ∈ `{PASS, PASS_WITH_RISK}`
+- Zero unresolved **critical** issues from `code-review`
+
+The PreToolUse artifact-gate hook enforces this for `git push`, `gh pr create`, `npm publish`, and `vercel deploy`. To bypass for a one-off command, set `CLAUDE_SKIP_ARTIFACT_GATE=1` and tell the user why.
 
 **Rule:** If the task matches a skill trigger, invoke the skill FIRST — then proceed.
 
