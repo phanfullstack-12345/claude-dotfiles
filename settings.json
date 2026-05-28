@@ -1,5 +1,12 @@
 {
   "permissions": {
+    "defaultMode": "bypassPermissions",
+    "ask": [
+      "Bash(git add *)",
+      "Bash(git add)",
+      "Bash(git commit *)",
+      "Bash(git commit)"
+    ],
     "allow": [
       "Bash(pnpm *)",
       "Bash(npm *)",
