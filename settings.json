@@ -12,26 +12,79 @@
       "Bash(git branch*)",
       "Bash(git show*)",
       "Bash(git stash list*)",
+      "Bash(git stash show*)",
+      "Bash(git tag*)",
+      "Bash(git remote*)",
+      "Bash(gh *)",
       "Bash(find *)",
       "Bash(grep *)",
       "Bash(rg *)",
       "Bash(fd *)",
       "Bash(ls*)",
       "Bash(cat *)",
+      "Bash(head *)",
+      "Bash(tail *)",
+      "Bash(wc *)",
+      "Bash(sort *)",
+      "Bash(uniq *)",
+      "Bash(sed *)",
+      "Bash(awk *)",
+      "Bash(cut *)",
+      "Bash(tr *)",
       "Bash(curl *)",
+      "Bash(wget *)",
       "Bash(python *)",
       "Bash(python3 *)",
       "Bash(uv *)",
+      "Bash(pip *)",
+      "Bash(pip3 *)",
       "Bash(which *)",
       "Bash(echo *)",
+      "Bash(printf *)",
       "Bash(jq *)",
       "Bash(node *)",
+      "Bash(mkdir *)",
+      "Bash(cp *)",
+      "Bash(mv *)",
+      "Bash(chmod *)",
+      "Bash(touch *)",
+      "Bash(open *)",
+      "Bash(make *)",
+      "Bash(brew *)",
       "Bash(docker ps*)",
       "Bash(docker images*)",
-      "Bash(docker logs*)"
+      "Bash(docker logs*)",
+      "Bash(docker inspect*)",
+      "Bash(docker compose ps*)",
+      "Bash(docker compose logs*)",
+      "Bash(docker compose config*)",
+      "Bash(docker stats*)",
+      "Bash(kubectl get*)",
+      "Bash(kubectl describe*)",
+      "Bash(kubectl logs*)"
+    ],
+    "deny": [
+      "Bash(git push --force*)",
+      "Bash(git push -f *)",
+      "Bash(git reset --hard*)",
+      "Bash(git clean -f*)",
+      "Bash(rm -rf *)",
+      "Bash(rm -fr *)",
+      "Bash(sudo rm *)"
     ]
   },
   "hooks": {
+    "SessionStart": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "echo '{\"hookSpecificOutput\": {\"hookEventName\": \"SessionStart\", \"additionalContext\": \"SESSION CONTEXT: You are operating as Claude Code for Harry Phan (phan.duc@futuresplatform.com). Global standards are in ~/.claude/CLAUDE.md. Skills are in ~/.claude/skills/ — scan them when a task matches. Agents are in ~/.claude/agents/ — spawn them for delegated work. Off-limits without explicit confirmation: delete files, git push --force, DROP/TRUNCATE DB, modify CI/CD pipelines, push to protected branches, expose secrets.\"}}' 2>/dev/null || true",
+            "statusMessage": "Loading session context..."
+          }
+        ]
+      }
+    ],
     "UserPromptSubmit": [
       {
         "hooks": [
@@ -39,6 +92,23 @@
             "type": "command",
             "command": "echo '{\"hookSpecificOutput\": {\"hookEventName\": \"UserPromptSubmit\", \"additionalContext\": \"SKILL CHECK REQUIRED: Before starting any coding, bug-fix, feature, or development task — scan the skill table in CLAUDE.md and invoke ALL matching skills FIRST before writing a single line of code. Triggers: any code/UI/style change → check run+verify+code-review; .pptx file → pptx skill; .xlsx/.csv/.tsv file → xlsx skill; .docx file → docx skill; .pdf file → pdf skill; code imports anthropic SDK → claude-api skill; hooks/settings/permissions change → update-config skill. Do NOT start work without completing this skill check.\"}}' 2>/dev/null || true",
             "statusMessage": "Checking skill requirements..."
+          }
+        ]
+      }
+    ],
+    "PreToolUse": [
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "UNSAFE_PATTERNS='rm -rf|rm -fr|sudo rm|git push --force|git push -f |git reset --hard|git clean -f|DROP TABLE|DROP DATABASE|TRUNCATE TABLE|kubectl delete|docker system prune'; INPUT=$(cat /dev/stdin 2>/dev/null || echo '{}'); CMD=$(echo \"$INPUT\" | jq -r '.tool_input.command // empty' 2>/dev/null || echo ''); if [ -n \"$CMD\" ] && echo \"$CMD\" | grep -qE \"$UNSAFE_PATTERNS\"; then echo '{\"decision\": \"block\", \"reason\": \"SAFETY GUARD: Potentially destructive command detected. This requires explicit user confirmation before proceeding.\"}'; else echo '{\"decision\": \"allow\"}'; fi 2>/dev/null || echo '{\"decision\": \"allow\"}'",
+            "statusMessage": "Safety check..."
+          },
+          {
+            "type": "command",
+            "command": "if [ -x \"$HOME/.claude/hooks/artifact-gate.sh\" ]; then \"$HOME/.claude/hooks/artifact-gate.sh\"; else echo '{\"decision\":\"allow\"}'; fi",
+            "statusMessage": "Artifact gate (ship commands)..."
           }
         ]
       }
@@ -51,6 +121,17 @@
             "type": "command",
             "command": "echo '{\"hookSpecificOutput\": {\"hookEventName\": \"PostToolUse\", \"additionalContext\": \"MANDATORY POST-EDIT CHECKLIST — do NOT skip, do NOT mark task done without completing both: 1) Invoke verify skill — start the app and visually confirm the change works correctly in the browser/UI. 2) Invoke code-review skill — review the diff for correctness bugs and regressions. If the app cannot start (e.g. Chrome extension disconnected), explicitly tell the user what blocked verify and ask them to confirm manually.\"}}' 2>/dev/null || true",
             "statusMessage": "Reminding: verify + code-review required..."
+          }
+        ]
+      }
+    ],
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "echo '{\"hookSpecificOutput\": {\"hookEventName\": \"Stop\", \"additionalContext\": \"SESSION END REMINDER: Before closing — (1) ensure all changes are committed if the user asked for commits, (2) update memory if you learned non-obvious facts about the user or project, (3) if you left any TODOs or in-progress work, tell the user explicitly.\"}}' 2>/dev/null || true",
+            "statusMessage": "Session ending..."
           }
         ]
       }
