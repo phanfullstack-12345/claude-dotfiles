@@ -172,5 +172,3 @@ This repo embodies the lesson from production-grade Claude Code workflows:
 > *Prompt chỉ là gợi ý. **Hook mới là kiểm soát.** Approval dựa vào score là diễn. Approval dựa vào artifact mới là thật.*
 
 Inspired by [ClaudeKit Engineer](https://claudekit.cc) by mrgoonie. This repo reimplements the principles natively in plain markdown + bash so it works on any machine without a subscription.
-
-<!-- push-test: verified 2025 -->
